@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pemesanan Makanan</title>
+    <link rel="stylesheet" href="style.css">
+    
+</head>
+<body>
+    <div class="container">
+        <div class="menu-toggle" onclick="toggleMenu()">Menu Makanan</div>
+        
+        <div id="menu" class="menu" style="display: none;">
+            <div class="menu-item">
+                <h2>Nasi Goreng</h2>
+                <p>Rp 25.000</p>
+                <input type="number" id="qty-nasi-goreng" min="1" value="1">
+                <button onclick="addToOrder('Nasi Goreng', 25000, 'qty-nasi-goreng')">Pesan</button>
+            </div>
+            <div class="menu-item">
+                <h2>Mie Ayam</h2>
+                <p>Rp 20.000</p>
+                <input type="number" id="qty-mie-ayam" min="1" value="1">
+                <button onclick="addToOrder('Mie Ayam', 20000, 'qty-mie-ayam')">Pesan</button>
+            </div>
+            <div class="menu-item">
+                <h2>Sate Ayam</h2>
+                <p>Rp 30.000</p>
+                <input type="number" id="qty-sate-ayam" min="1" value="1">
+                <button onclick="addToOrder('Sate Ayam', 30000, 'qty-sate-ayam')">Pesan</button>
+            </div>
+        </div>
+        
+        <div id="order" class="order-section">
+            <h2>Pesanan Anda</h2>
+            <ul id="order-list"></ul>
+            <input type="text" id="customer-name" placeholder="Nama Anda">
+            <input type="text" id="customer-contact" placeholder="Kontak" oninput="validateContact()">
+            <span id="contact-error" style="color: red; display: none;">Harap isi dengan nomor telepon Anda</span>
+            <button onclick="submitOrder()">Kirim Pesanan</button>
+        </div>
+    </div>
+    
+    <script>
+        let order = [];
+
+        function toggleMenu() {
+            const menu = document.getElementById("menu");
+            menu.style.display = menu.style.display === "none" ? "block" : "none";
+        }
+
+        function addToOrder(name, price, qtyId) {
+            const quantity = parseInt(document.getElementById(qtyId).value);
+            if (quantity <= 0 || isNaN(quantity)) {
+                alert("Masukkan jumlah yang valid!");
+                return;
+            }
+            order.push({ name, price, quantity });
+            updateOrderList();
+        }
+
+        function updateOrderList() {
+            const orderList = document.getElementById("order-list");
+            orderList.innerHTML = "";
+            order.forEach(item => {
+                const li = document.createElement("li");
+                li.textContent = `${item.quantity}x ${item.name} - Rp ${(item.price * item.quantity).toLocaleString()}`;
+                orderList.appendChild(li);
+            });
+        }
+
+        function validateContact() {
+            const contactField = document.getElementById("customer-contact");
+            const contactError = document.getElementById("contact-error");
+            if (!/^[0-9]*$/.test(contactField.value)) {
+                contactError.style.display = "block";
+                contactField.value = contactField.value.replace(/\D/g, '');
+            } else {
+                contactError.style.display = "none";
+            }
+        }
+
+        function submitOrder() {
+            const name = document.getElementById("customer-name").value;
+            const contact = document.getElementById("customer-contact").value;
+            
+            if (!name || !contact) {
+                alert("Harap isi nama dan kontak!");
+                return;
+            }
+
+            const orderText = order.map(o => `- ${o.quantity}x ${o.name} (Rp ${(o.price * o.quantity).toLocaleString()})`).join("%0A");
+            const message = `Halo, ${name} ingin memesan:%0A${orderText}%0A%0ANama: ${name}%0AKontak: ${contact}`;
+            
+            const phoneNumber = "6285760186335"; 
+            const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
+            
+            window.open(whatsappURL, "_blank");
+
+            order = [];
+            updateOrderList();
+            document.getElementById("customer-name").value = "";
+            document.getElementById("customer-contact").value = "";
+        }
+    </script>
+    
+</body>
+</html>
