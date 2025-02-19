@@ -5,33 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pemesanan Makanan</title>
     <link rel="stylesheet" href="style.css">
-    
 </head>
 <body>
     <div class="container">
-        <div class="menu-toggle" onclick="toggleMenu()">Menu Makanan</div>
-        
+        <div class="menu-toggle"  onclick="toggleMenu()">Menu Makanan</div>
         <div id="menu" class="menu" style="display: none;">
             <div class="menu-item">
-                <h2>Nasi Goreng</h2>
-                <p>Rp 25.000</p>
-                <input type="number" id="qty-nasi-goreng" min="1" value="1">
-                <button onclick="addToOrder('Nasi Goreng', 25000, 'qty-nasi-goreng')">Pesan</button>
-            </div>
-            <div class="menu-item">
-                <h2>Mie Ayam</h2>
-                <p>Rp 20.000</p>
-                <input type="number" id="qty-mie-ayam" min="1" value="1">
-                <button onclick="addToOrder('Mie Ayam', 20000, 'qty-mie-ayam')">Pesan</button>
-            </div>
-            <div class="menu-item">
-                <h2>Sate Ayam</h2>
+                <img src="image/dimsum.jpg" alt="Dimsum Mentai" class="menu-image">
+                <h2>Dimsum Mentai</h2>
                 <p>Rp 30.000</p>
-                <input type="number" id="qty-sate-ayam" min="1" value="1">
-                <button onclick="addToOrder('Sate Ayam', 30000, 'qty-sate-ayam')">Pesan</button>
+                <div>
+                    <label ><input type="radio" name="flavor-dimsum" value="Coklat" checked> Coklat</label>
+                    <label><input type="radio" name="flavor-dimsum" value="Keju"> Keju</label>
+                </div>
+                <input type="number" id="qty-dimsum" min="1" value="1">
+                <button onclick="addToOrder('Dimsum Mentai', 25000, 'qty-dimsum', 'flavor-dimsum')">Pesan</button>
+            </div>
+            <div class="menu-item">
+                <img src="image/risol.jpg" alt="Risol Mayo" class="menu-image">
+                <h2>Risol Mayo</h2>
+                <p>Rp 6.000</p>
+                <input type="number" id="qty-risol" min="1" value="1">
+                <button onclick="addToOrder('Risol Mayo', 20000, 'qty-risol')">Pesan</button>
+            </div>
+            <div class="menu-item">
+                <img src="image/dessert.jpg" alt="Dessert" class="menu-image">
+                <h2>Dessert</h2>
+                <p>Rp 10.000</p>
+                <div>
+                    <label><input type="radio" name="flavor-dessert" value="Coklat" checked> Coklat</label>
+                    <label><input type="radio" name="flavor-dessert" value="Keju"> Keju</label>
+                </div>
+                <input type="number" id="qty-dessert" min="1" value="1">
+                <button onclick="addToOrder('Dessert', 30000, 'qty-dessert', 'flavor-dessert')">Pesan</button>
             </div>
         </div>
-        
         <div id="order" class="order-section">
             <h2>Pesanan Anda</h2>
             <ul id="order-list"></ul>
@@ -41,7 +49,6 @@
             <button onclick="submitOrder()">Kirim Pesanan</button>
         </div>
     </div>
-    
     <script>
         let order = [];
 
@@ -50,11 +57,19 @@
             menu.style.display = menu.style.display === "none" ? "block" : "none";
         }
 
-        function addToOrder(name, price, qtyId) {
+        function addToOrder(name, price, qtyId, flavorName = null) {
             const quantity = parseInt(document.getElementById(qtyId).value);
             if (quantity <= 0 || isNaN(quantity)) {
                 alert("Masukkan jumlah yang valid!");
                 return;
+            }
+            let flavor = "";
+            if (flavorName) {
+                const selectedFlavor = document.querySelector(`input[name="${flavorName}"]:checked`);
+                if (selectedFlavor) {
+                    flavor = selectedFlavor.value;
+                    name += ` (${flavor})`;
+                }
             }
             order.push({ name, price, quantity });
             updateOrderList();
@@ -63,11 +78,28 @@
         function updateOrderList() {
             const orderList = document.getElementById("order-list");
             orderList.innerHTML = "";
-            order.forEach(item => {
+            order.forEach((item, index) => {
                 const li = document.createElement("li");
                 li.textContent = `${item.quantity}x ${item.name} - Rp ${(item.price * item.quantity).toLocaleString()}`;
+
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Hapus";
+                deleteButton.style.backgroundColor = "#ff5722";
+                deleteButton.style.color = "#fff";
+                deleteButton.style.border = "none";
+                deleteButton.style.padding = "5px 10px";
+                deleteButton.style.marginLeft = "10px";
+                deleteButton.style.cursor = "pointer";
+                deleteButton.onclick = () => removeItemFromOrder(index);
+
+                li.appendChild(deleteButton);
                 orderList.appendChild(li);
             });
+        }
+
+        function removeItemFromOrder(index) {
+            order.splice(index, 1);
+            updateOrderList();
         }
 
         function validateContact() {
@@ -84,7 +116,7 @@
         function submitOrder() {
             const name = document.getElementById("customer-name").value;
             const contact = document.getElementById("customer-contact").value;
-            
+
             if (!name || !contact) {
                 alert("Harap isi nama dan kontak!");
                 return;
@@ -92,18 +124,16 @@
 
             const orderText = order.map(o => `- ${o.quantity}x ${o.name} (Rp ${(o.price * o.quantity).toLocaleString()})`).join("%0A");
             const message = `Halo, ${name} ingin memesan:%0A${orderText}%0A%0ANama: ${name}%0AKontak: ${contact}`;
-            
-            const phoneNumber = "6285760186335"; 
-            const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
-            
-            window.open(whatsappURL, "_blank");
 
+            const phoneNumber = "6289508505031";
+            const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
+
+            window.open(whatsappURL, "_blank");
             order = [];
             updateOrderList();
             document.getElementById("customer-name").value = "";
             document.getElementById("customer-contact").value = "";
         }
     </script>
-    
 </body>
 </html>
